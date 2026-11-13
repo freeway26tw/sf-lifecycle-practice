@@ -1,0 +1,47 @@
+{
+    "records": [
+        {
+            "attributes": { "type": "Account", "referenceId": "acc_commerce" },
+            "Name": "Commerce Account",
+            "Orders": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Order",
+                            "referenceId": "order1"
+                        },
+                        "EffectiveDate": "2024-10-01",
+                        "Status": "Draft"
+                    },
+                    {
+                        "attributes": {
+                            "type": "Order",
+                            "referenceId": "order2"
+                        },
+                        "EffectiveDate": "2024-11-15",
+                        "Status": "Draft"
+                    }
+                ]
+            }
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "acc_enterprise"
+            },
+            "Name": "Enterprise Account",
+            "Orders": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Order",
+                            "referenceId": "order3"
+                        },
+                        "EffectiveDate": "2024-12-01",
+                        "Status": "Draft"
+                    }
+                ]
+            }
+        }
+    ]
+}

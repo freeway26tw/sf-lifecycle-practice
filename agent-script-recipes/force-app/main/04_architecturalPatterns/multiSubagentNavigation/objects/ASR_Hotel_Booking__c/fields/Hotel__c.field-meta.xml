@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Hotel__c</fullName>
+    <label>Hotel</label>
+    <referenceTo>ASR_Hotel__c</referenceTo>
+    <relationshipLabel>Hotel Bookings</relationshipLabel>
+    <relationshipName>ASR_Hotel_Bookings</relationshipName>
+    <type>Lookup</type>
+</CustomField>

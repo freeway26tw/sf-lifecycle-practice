@@ -1,0 +1,104 @@
+config:
+   developer_name: "SafetyAndGuardrails"
+   agent_label: "Safety and Guardrails"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Handles sensitive data deletion with safety guardrails"
+
+variables:
+   record_id: mutable string = ""
+      description: "Record ID to delete"
+
+   user_confirmed_deletion: mutable boolean = False
+      description: "Whether user confirmed deletion"
+
+   dependency_count: mutable number = 0
+      description: "Number of dependent records"
+
+   delete_succeeded: mutable boolean = False
+      description: "Flag that indicates whether the deletion was successful"
+
+   delete_state: mutable string = "check_dependencies"
+      description: "Flag that indicates the state of the deletion process"
+
+system:
+   messages:
+      welcome: "I can help with data management. Deletions require confirmation."
+      error: "Operation cancelled for safety."
+
+   instructions: "You are a data management assistant. Follow the safety guardrails and instructions provided to you."
+
+start_agent agent_router:
+   label: "Agent Router"
+
+   description: "Route user messages to data management subagent"
+
+   reasoning:
+      instructions: |
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+         If the user is continuing an ongoing data management conversation (such as confirming a deletion, providing a record ID, or answering a follow-up question), always route to {!@actions.begin_data_management}.
+
+      actions:
+         begin_data_management: @utils.transition to @subagent.data_management
+            description: "Route to data management for any data operation including deletions, confirmations, record lookups, and continuing in-progress workflows"
+
+subagent data_management:
+   label: "Data Management"
+
+   description: "Use this subagent to manage data operations requested by the user."
+
+   reasoning:
+      instructions: ->
+         if @variables.record_id == "":
+            | Ask for the record ID to delete. Use {!@actions.set_record_id} to save the ID.
+
+         if @variables.record_id != "" and @variables.user_confirmed_deletion == False:
+            | Ask the user to confirm deletion of the record. If the user has already confirmed in the conversation, immediately use {!@actions.set_user_confirmation} to save their confirmation. Otherwise, ask for confirmation first.
+
+         | If the confirmation is received ({!@variables.user_confirmed_deletion}), check the dependencies using {!@actions.check_dependencies}.
+         | If dependencies are checked and if there are no dependencies, delete the record using {!@actions.delete_record}.
+         | If dependencies are checked and if there are dependencies, display a warning message that {!@variables.dependency_count} dependent records were found. This affects data integrity and workflows. Hence you cannot delete this record and please contact the system administrator for further assistance.
+         | If the deletion succeeds, display a message indicating that the record was deleted successfully.
+         | If the deletion fails, display a message indicating that the record was not deleted successfully. Ask the user to contact the system administrator for further assistance.
+
+      actions:
+         set_record_id: @utils.setVariables
+            with record_id = ... # The record ID to delete
+
+         set_user_confirmation: @utils.setVariables
+            available when @variables.record_id != ""
+            with user_confirmed_deletion = ... # The user's confirmation to delete the record
+
+         check_dependencies: @actions.check_dependencies
+            available when @variables.delete_state == "check_dependencies" and @variables.user_confirmed_deletion == True
+            with record_id = @variables.record_id
+            set @variables.dependency_count = @outputs.count
+            set @variables.delete_state = "check_dependencies_ran"
+
+         delete_record: @actions.delete_record
+            available when @variables.delete_state == "check_dependencies_ran" and @variables.dependency_count == 0
+            with record_id = @variables.record_id
+            set @variables.delete_succeeded = @outputs.success
+            set @variables.delete_state = "delete_ran"
+
+   actions:
+      check_dependencies:
+         description: "Checks if a record has dependencies"
+         inputs:
+            record_id: string
+               description: "The unique identifier of the record to check for dependencies"
+               is_required: True
+         outputs:
+            count: number
+               description: "The number of dependent records that would be affected by deletion"
+         target: "flow://CheckDependencies"
+
+      delete_record:
+         description: "Deletes a record permanently"
+         inputs:
+            record_id: string
+               description: "The unique identifier of the record to permanently delete"
+               is_required: True
+         outputs:
+            success: boolean
+               description: "Indicates whether the record was deleted successfully"
+         target: "flow://DeleteRecord"

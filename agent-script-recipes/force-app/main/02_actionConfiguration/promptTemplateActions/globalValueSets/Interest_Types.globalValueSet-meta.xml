@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Interest_Types</fullName>
+    <customValue>
+        <fullName>Dining &amp; Social</fullName>
+        <default>false</default>
+        <label>Dining &amp; Social</label>
+    </customValue>
+    <customValue>
+        <fullName>Entertainment &amp; Nightlife</fullName>
+        <default>false</default>
+        <label>Entertainment &amp; Nightlife</label>
+    </customValue>
+    <customValue>
+        <fullName>Family &amp; Youth</fullName>
+        <default>false</default>
+        <label>Family &amp; Youth</label>
+    </customValue>
+    <customValue>
+        <fullName>Health &amp; Wellness</fullName>
+        <default>false</default>
+        <label>Health &amp; Wellness</label>
+    </customValue>
+    <customValue>
+        <fullName>Shore Excursions - Adventure</fullName>
+        <default>false</default>
+        <label>Shore Excursions - Adventure</label>
+    </customValue>
+    <customValue>
+        <fullName>Shore Excursions - Cultural</fullName>
+        <default>false</default>
+        <label>Shore Excursions - Cultural</label>
+    </customValue>
+    <customValue>
+        <fullName>Shore Excursions - Water</fullName>
+        <default>false</default>
+        <label>Shore Excursions - Water</label>
+    </customValue>
+    <customValue>
+        <fullName>Special Interest &amp; Exclusive</fullName>
+        <default>false</default>
+        <label>Special Interest &amp; Exclusive</label>
+    </customValue>
+    <masterLabel>Interest Types</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

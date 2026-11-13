@@ -1,0 +1,22 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Shopping_Cart__c",
+                "referenceId": "cart1"
+            },
+            "Customer_Name__c": "Jane Doe",
+            "Status__c": "New",
+            "Total_Amount__c": 1225.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Shopping_Cart__c",
+                "referenceId": "cart2"
+            },
+            "Customer_Name__c": "John Smith",
+            "Status__c": "Completed",
+            "Total_Amount__c": 749.0
+        }
+    ]
+}

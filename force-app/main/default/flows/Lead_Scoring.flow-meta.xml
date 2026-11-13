@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Score_And_Rating</name>
+        <label>Set Score And Rating</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Lead_Score__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Total_Score</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Rating</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Rating_Result</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <formulas>
+        <name>Country_Score</name>
+        <dataType>Number</dataType>
+        <expression>CASE({!$Record.CountryCode},
+&quot;TW&quot;, 10,
+0)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>Description_Score</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!$Record.Description}), 0,
+IF(LEN({!$Record.Description}) &gt; 100, 30,
+IF(LEN({!$Record.Description}) &gt;= 20, 10, 0)))</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>Email_Domain_Score</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!$Record.Email}), 0,
+IF(OR(
+    CONTAINS(LOWER({!$Record.Email}), &quot;@gmail.&quot;),
+    CONTAINS(LOWER({!$Record.Email}), &quot;@yahoo.&quot;),
+    CONTAINS(LOWER({!$Record.Email}), &quot;@hotmail.&quot;),
+    CONTAINS(LOWER({!$Record.Email}), &quot;@outlook.&quot;),
+    CONTAINS(LOWER({!$Record.Email}), &quot;@qq.&quot;),
+    CONTAINS(LOWER({!$Record.Email}), &quot;@icloud.&quot;)
+), 5, 35))</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>Rating_Result</name>
+        <dataType>String</dataType>
+        <expression>IF({!Total_Score} &gt;= 60, &quot;Hot&quot;,
+IF({!Total_Score} &gt;= 30, &quot;Warm&quot;, &quot;Cold&quot;))</expression>
+    </formulas>
+    <formulas>
+        <name>Total_Score</name>
+        <dataType>Number</dataType>
+        <expression
+    >{!Email_Domain_Score} + {!Website_Score} + {!Country_Score} + {!Description_Score}</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>Website_Score</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!$Record.Website}), 0, 15)</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>Lead Scoring {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Lead Scoring</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Score_And_Rating</targetReference>
+        </connector>
+        <object>Lead</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

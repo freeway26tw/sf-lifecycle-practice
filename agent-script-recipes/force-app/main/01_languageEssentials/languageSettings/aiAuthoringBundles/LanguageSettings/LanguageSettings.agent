@@ -1,0 +1,45 @@
+# LanguageSettings - Multilingual Agent Configuration
+# Demonstrates how to define language settings for multilingual agent support
+
+system:
+   messages:
+      welcome: "Hello! I can speak English, Spanish, French, and German."
+      error: "I'm sorry, I didn't understand that."
+
+   instructions: "You are a multilingual assistant. Respond in the user's preferred language."
+
+config:
+    developer_name: "LanguageSettings"
+    agent_label: "Language Settings"
+    agent_type: "AgentforceEmployeeAgent"
+    description: "Demonstrates language configuration and localization"
+
+# Language Configuration
+language:
+  default_locale: "en_US"
+  additional_locales: "es_MX,fr,de"
+  
+start_agent agent_router:
+   description: "Identifies language and greets user"
+   
+   reasoning:
+      instructions:->
+         | Greet the user in their detected language.
+           If they speak Spanish, say "Hola".
+           If they speak French, say "Bonjour".
+           If they speak German, say "Hallo".
+           Otherwise, use English.
+
+           Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+
+      actions:
+         pass: @utils.transition to @subagent.main_topic
+            description: "Continue to main subagent"
+
+subagent main_topic:
+   description: "Main interaction subagent"
+   
+   reasoning:
+      instructions:->
+        | Assist the user in their language.
+

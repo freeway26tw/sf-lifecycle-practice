@@ -1,0 +1,135 @@
+# TemplateExpressions - Dynamic Content with Template Syntax
+# This agent demonstrates how to use template expressions to create dynamic, personalized responses
+
+config:
+   developer_name: "TemplateExpressions"
+   agent_label: "Template Expressions"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Personalized shopping assistant using template expressions for dynamic content"
+
+variables:
+   customer_name: mutable string = ""
+      description: "The customer's name"
+
+   budget: mutable number = 0
+      description: "Customer's shopping budget"
+
+   cart_items: mutable list[string] = []
+      description: "Items currently in the shopping cart"
+
+   cart_total: mutable number = 0
+      description: "Total cost of items in cart"
+
+   product_name: mutable string = ""
+      description: "The type of product the customer is looking for"
+
+system:
+   messages:
+      welcome: "Welcome to our store! I'm your personal shopping assistant."
+      error: "Oops! Something went wrong. Let me try that again."
+ 
+   # Template expressions work in system instructions too
+   # Use {!expression} syntax to insert dynamic values
+   instructions: "You are a helpful shopping assistant. Be friendly and personalized. Always refer to customers by name when you know it."
+
+start_agent agent_router:
+   description: "Welcome customers and begin personalized shopping assistance"
+   
+   reasoning:
+      instructions:|
+          Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         start_shopping: @utils.transition to @subagent.shopping_assistant
+            description: "Handle all shopping interactions: collecting the customer's name or budget, finding products, and adding items to the cart. Use this for ANY shopping-related message, including when the customer is responding to a prior question from the assistant."
+
+subagent shopping_assistant:
+   description: "Gather customer's product requirements, help them find matching products and add them to their cart."
+
+   actions:
+      add_to_cart:
+         description: "Adds an item to the customer's shopping cart"
+         inputs:
+            item_name: string
+               description: "Name of the product item to add to the cart"
+               is_required: True
+            price: number
+               description: "Price of the item being added to the cart"
+               is_required: True
+         outputs:
+            success: boolean
+               description: "Indicates whether the item was added to the cart successfully"
+            new_total: number
+               description: "Updated cart total after adding the item"
+         target: "flow://AddToCart"
+
+      get_recommendations:
+         description: "Get personalized product recommendations"
+         inputs:
+            budget: number
+               description: "Customer's budget to tailor recommendations within their price range"
+               is_required: True
+            product_name: string
+               description: "The type of product to search for by name"
+               is_required: True
+         outputs:
+            recommendations: list[string]
+               description: "List of personalized product recommendations matching budget and preferences"
+         target: "flow://GetRecommendations"
+
+   reasoning:
+      # Template expressions: {!expression} inserts dynamic values
+      # You can use variables, conditionals, and simple logic
+      instructions:->
+         |
+
+         if @variables.customer_name:
+            | You're helping {!@variables.customer_name}.
+         else:
+            | You're helping a new customer. Ask for their name.
+
+         | Current shopping session:
+
+         if @variables.product_name:
+            | - Looking for: {!@variables.product_name}
+
+         if @variables.budget > 0:
+            | - Budget: {!@variables.budget}
+         else:
+            | - Budget: Not set
+
+         if @variables.cart_items:
+            | - Cart items: {!@variables.cart_items}
+         else:
+            | - Cart items: Empty
+
+         | - Cart total: {!@variables.cart_total}
+
+         if @variables.cart_total > @variables.budget and @variables.budget > 0:
+            | - ⚠️ Cart total exceeds budget by {!@variables.cart_total - @variables.budget}
+
+         | Help the customer:
+           1. Suggest products that match their product name and budget
+           2. Add items to their cart using {!@actions.add_to_cart}
+           3. Keep them informed of their cart total
+
+           Don't call {!@actions.get_recommendations} unless you already have the product name and budget set.
+           Never ask the customer about their preferences.
+
+         if @variables.customer_name:
+            | Use their name ({!@variables.customer_name}) when speaking to make it personal!
+
+      actions:
+         collect_info: @utils.setVariables
+            description: "Set the customer's name, product name and budget from the conversation"
+            with customer_name=...
+            with budget=...
+            with product_name=...
+
+         add_to_cart: @actions.add_to_cart
+            with item_name=...
+            with price=...
+            set @variables.cart_total = @outputs.new_total
+
+         get_recommendations: @actions.get_recommendations
+            with budget=@variables.budget
+            with product_name=@variables.product_name

@@ -1,0 +1,76 @@
+<template>
+    <div class="form-wrapper">
+        <template if:true={isSuccess}>
+            <div class="success-state">
+                <p class="success-message">感謝您的來信，我們已收到您的諮詢內容，將盡快與您聯繫。</p>
+                <button class="reset-button" onclick={handleReset}>填寫新的表單</button>
+            </div>
+        </template>
+
+        <template if:false={isSuccess}>
+            <p class="form-heading">歡迎來信填寫聯絡表單<span class="required-note">*為必填</span></p>
+
+            <template if:true={errorMessage}>
+                <p class="error-message">{errorMessage}</p>
+            </template>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label class="field-label" for="subject">Subject<span class="required">*</span></label>
+                    <input id="subject" type="text" class="field-input" value={subject} onchange={handleSubjectChange} />
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="contactName">聯絡人<span class="required">*</span></label>
+                    <input id="contactName" type="text" class="field-input" placeholder="聯絡人" value={contactName} onchange={handleContactNameChange} />
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="email">Email<span class="required">*</span></label>
+                    <input id="email" type="email" class="field-input" placeholder="E-mail" value={email} onchange={handleEmailChange} />
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="phone">Phone<span class="required">*</span></label>
+                    <input id="phone" type="tel" class="field-input" placeholder="聯絡手機" value={phone} onchange={handlePhoneChange} />
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="company">Company<span class="required">*</span></label>
+                    <input id="company" type="text" class="field-input" placeholder="公司名稱" value={company} onchange={handleCompanyChange} />
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="website">Website</label>
+                    <input id="website" type="text" class="field-input" value={website} onchange={handleWebsiteChange} />
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="country">Country<span class="required">*</span></label>
+                    <select id="country" class="field-input" onchange={handleCountryChange}>
+                        <template for:each={countryOptions} for:item="option">
+                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                        </template>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="leadSource">如何得知我們</label>
+                    <select id="leadSource" class="field-input" onchange={handleLeadSourceChange}>
+                        <template for:each={leadSourceOptions} for:item="option">
+                            <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+                        </template>
+                    </select>
+                </div>
+
+                <div class="form-field form-field-full">
+                    <label class="field-label" for="description">諮詢內容<span class="required">*</span></label>
+                    <textarea
+                        id="description"
+                        class="field-input field-textarea"
+                        placeholder="關於此次諮詢需提醒我們的注意事項"
+                        onchange={handleDescriptionChange}
+                    >{description}</textarea>
+                </div>
+            </div>
+
+            <button class="submit-button" onclick={handleSubmit} disabled={isSubmitting}>送出</button>
+        </template>
+    </div>
+</template>

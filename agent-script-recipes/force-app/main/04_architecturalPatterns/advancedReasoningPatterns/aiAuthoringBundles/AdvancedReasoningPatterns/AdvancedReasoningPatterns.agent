@@ -1,0 +1,262 @@
+# Demonstrates complex dynamic reasoning with multiple data sources
+system:
+   messages:
+      welcome: "Welcome! I provide personalized insights based on your complete customer profile."
+      error: "I had trouble performing the action. Please try again."
+   instructions: "You are an advanced agent that synthesizes multiple data sources for intelligent recommendations."
+
+config:
+    developer_name: "AdvancedReasoningPatterns"
+    agent_label: "Advanced Reasoning Patterns"
+    agent_type: "AgentforceEmployeeAgent"
+    description: "Demonstrates advanced reasoning with dynamic instructions and complex logic"
+
+variables:
+   # User context
+   user_id: mutable string = ""
+      description: "The unique identifier for the customer"
+   user_profile: mutable object = {}
+      description: "The customer's profile information including name and contact details"
+
+   # Multi-source data
+   account_data: mutable object = {}
+      description: "Current status and details of the customer's account"
+   recent_orders: mutable object = {}
+      description: "List of the customer's most recent orders"
+   support_history: mutable object = {}
+      description: "History of support tickets and interactions"
+   loyalty_status: mutable string = ""
+      description: "The customer's current loyalty tier (e.g., Gold, Platinum)"
+
+   # Computed insights
+   customer_lifetime_value: mutable number = 0
+      description: "Calculated lifetime value of the customer in currency"
+   churn_risk_score: mutable number = 0
+      description: "Probability score (0-1) indicating likelihood of customer churn"
+   recommended_actions: mutable object = {}
+      description: "AI-generated list of recommended next actions for the customer"
+
+start_agent agent_router:
+   description: "Welcome users and begin providing intelligent insights"
+
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         view_insights: @utils.transition to @subagent.intelligent_insights
+
+subagent intelligent_insights:
+   description: "Provides intelligent insights by synthesizing multiple data sources including your profile, account data, order history, and support tickets. Let me know your customer ID to load your complete customer intelligence dashboard."
+
+   reasoning:
+      # Build dynamic instructions based on loaded data
+      instructions: ->
+         # Ask for user_id if we don't have it
+         if @variables.user_id=="":
+            | Ask the user for customer ID to view personalized insights. Do not proceed until you have the customer ID.
+              Use {!@actions.set_user_id} to update the user_id variable and set context.
+         
+         # Fetch customer data if we have user_id
+         if @variables.user_id!="":
+            run @actions.fetch_user_profile
+               with user_id=@variables.user_id
+               set @variables.user_profile = @outputs.profile
+            # Chain additional data fetches
+            run @actions.fetch_account_data
+               with user_id=@variables.user_id
+               set @variables.account_data = @outputs.account
+            run @actions.fetch_order_history
+               with user_id=@variables.user_id
+               with limit=10
+               set @variables.recent_orders = @outputs.orders
+            run @actions.fetch_support_history
+               with user_id=@variables.user_id
+               set @variables.support_history = @outputs.tickets
+            # Compute insights
+            run @actions.calculate_customer_value
+               with user_id=@variables.user_id
+               set @variables.customer_lifetime_value = @outputs.clv
+               set @variables.loyalty_status = @outputs.loyalty_tier
+            run @actions.assess_churn_risk
+               with account=@variables.account_data
+               with orders=@variables.recent_orders
+               with support_tickets=@variables.support_history
+               set @variables.churn_risk_score = @outputs.risk_score
+            run @actions.generate_recommendations
+               with profile=@variables.user_profile
+               with clv=@variables.customer_lifetime_value
+               with churn_risk=@variables.churn_risk_score
+               set @variables.recommended_actions = @outputs.recommendations
+
+            | Customer Intelligence Dashboard
+
+         if @variables.user_profile:
+            | Customer Profile:
+            | Name: {!@variables.user_profile.name}
+              - Loyalty Status: {!@variables.loyalty_status}
+              - Lifetime Value: ${!@variables.customer_lifetime_value}             
+            | Account Health:
+         if @variables.user_profile and @variables.churn_risk_score < 0.3:
+            | ✅ Low churn risk ({!@variables.churn_risk_score}%)
+         if @variables.user_profile and @variables.churn_risk_score >= 0.3 and @variables.churn_risk_score < 0.7:
+            | ⚠️ Moderate churn risk ({!@variables.churn_risk_score}%)
+         if @variables.user_profile and @variables.churn_risk_score >= 0.7:
+            | 🚨 High churn risk ({!@variables.churn_risk_score}%)
+          
+         | Recent Activity:
+         if @variables.recent_orders:
+            | Orders (last 30 days):
+              {!@variables.recent_orders}
+         if @variables.support_history:
+            | Support Tickets:
+              {!@variables.support_history}
+          
+         if @variables.recommended_actions:
+            | Recommended Actions:
+              {!@variables.recommended_actions}
+
+      actions:
+         # Load all data sources during reasoning
+         set_user_id: @utils.setVariables
+            description: "Set the user ID to load customer data"
+            with user_id=...
+         fetch_user_profile: @actions.fetch_user_profile
+            available when @variables.user_id != ""
+            with user_id=@variables.user_id
+         fetch_account_data: @actions.fetch_account_data
+            available when @variables.user_id != ""
+            with user_id=@variables.user_id
+            set @variables.account_data = @outputs.account
+         fetch_order_history: @actions.fetch_order_history
+            available when @variables.user_id != ""
+            with user_id=@variables.user_id
+            with limit=10
+            set @variables.recent_orders = @outputs.orders
+         fetch_support_history: @actions.fetch_support_history
+            available when @variables.user_id != ""
+            with user_id=@variables.user_id
+            set @variables.support_history = @outputs.tickets
+         calculate_customer_value: @actions.calculate_customer_value
+            available when @variables.user_id != ""
+            with user_id=@variables.user_id
+            set @variables.customer_lifetime_value = @outputs.clv
+            set @variables.loyalty_status = @outputs.loyalty_tier
+         assess_churn_risk: @actions.assess_churn_risk
+            available when @variables.user_id != ""
+            with account=@variables.account_data
+            with orders=@variables.recent_orders
+            with support_tickets=@variables.support_history
+            set @variables.churn_risk_score = @outputs.risk_score
+         generate_recommendations: @actions.generate_recommendations
+            available when @variables.user_id != ""
+            with profile=@variables.user_profile
+            with clv=@variables.customer_lifetime_value
+            with churn_risk=@variables.churn_risk_score
+            set @variables.recommended_actions = @outputs.recommendations
+
+   actions:
+      fetch_user_profile:
+         description: "Fetch complete user profile"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the user whose profile to fetch"
+               is_required: True
+         outputs:
+            profile: object
+               description: "User profile object containing name, contact information, and account details"
+               complex_data_type_name: "lightning__recordInfoType"
+         target: "flow://FetchUserProfile"
+
+      fetch_account_data:
+         description: "Fetch account details"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the user whose account data to retrieve"
+               is_required: True
+         outputs:
+            account: object
+               description: "Account object with account status, balance, and membership information"
+               complex_data_type_name: "lightning__recordInfoType"
+         target: "flow://FetchAccountData"
+
+      fetch_order_history:
+         description: "Fetch recent orders"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the user whose order history to fetch"
+               is_required: True
+            limit: number
+               description: "Maximum number of recent orders to return (e.g., 10 for last 10 orders)"
+               is_required: False
+         outputs:
+            orders: list[object]
+               description: "List of ASR_Order__c records containing order ID, date, amount, and items for each order"
+               complex_data_type_name: "lightning__recordInfoType"
+         target: "flow://FetchOrderHistory"
+
+      fetch_support_history:
+         description: "Fetch support ticket history"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the user whose support history to retrieve"
+               is_required: True
+         outputs:
+            tickets: list[object]
+               description: "List of Case records with ticket ID, status, issue type, and resolution details"
+               complex_data_type_name: "lightning__recordInfoType"
+         target: "flow://FetchSupportHistory"
+
+      calculate_customer_value:
+         description: "Calculate customer lifetime value"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the customer to calculate value for"
+               is_required: True
+         outputs:
+            clv: number
+               description: "Calculated customer lifetime value as a monetary amount"
+            loyalty_tier: string
+               description: "Customer's loyalty tier based on CLV (e.g., Bronze, Silver, Gold, Platinum)"
+         target: "flow://CalculateCustomerValue"
+
+      assess_churn_risk:
+         description: "Assess customer churn risk"
+         inputs:
+            account: object
+               description: "Customer account object with status and activity information"
+               complex_data_type_name: "lightning__recordInfoType"
+               is_required: True
+            orders: list[object]
+               description: "List of customer orders used to analyze purchase patterns and frequency"
+               complex_data_type_name: "lightning__recordInfoType"
+               is_required: True
+            support_tickets: list[object]
+               description: "List of support tickets used to identify potential dissatisfaction indicators"
+               complex_data_type_name: "lightning__recordInfoType"
+               is_required: True
+         outputs:
+            risk_score: number
+               description: "Churn risk score as a decimal between 0.0 (low risk) and 1.0 (high risk)"
+            risk_factors: list[string]
+               description: "List of identified factors contributing to churn risk (e.g., decreased purchase frequency, unresolved tickets)"
+               complex_data_type_name: "lightning__textType"
+         target: "flow://AssessChurnRisk"
+
+      generate_recommendations:
+         description: "Generate personalized recommendations"
+         inputs:
+            profile: object
+               description: "Customer profile object with preferences and demographic information"
+               complex_data_type_name: "lightning__recordInfoType"
+               is_required: True
+            clv: number
+               description: "Customer lifetime value used to tailor recommendations appropriately"
+               is_required: True
+            churn_risk: number
+               description: "Churn risk score (0.0-1.0) used to prioritize retention-focused recommendations"
+               is_required: True
+         outputs:
+            recommendations: list[string]
+               description: "List of personalized action recommendations for engaging and retaining the customer"
+               complex_data_type_name: "lightning__textType"
+         target: "flow://GenerateRecommendations"

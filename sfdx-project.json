@@ -1,0 +1,20 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    },
+    {
+      "path": "agent-script-recipes/force-app",
+      "default": false
+    },
+    {
+      "path": "agent-script-recipes/force-app-service",
+      "default": false
+    }
+  ],
+  "name": "DemoOrg",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "67.0"
+}

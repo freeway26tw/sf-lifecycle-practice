@@ -1,0 +1,48 @@
+{
+    "records": [
+        {
+            "attributes": { "type": "ASR_Product__c", "referenceId": "prod1" },
+            "Name": "Laptop X200",
+            "Product_Code__c": "LAP200",
+            "Is_Active__c": true,
+            "Description__c": "High performance laptop",
+            "Family__c": "Laptop",
+            "In_Stock__c": true,
+            "Price__c": 1200.0,
+            "Category__c": "Electronics"
+        },
+        {
+            "attributes": { "type": "ASR_Product__c", "referenceId": "prod2" },
+            "Name": "Wireless Mouse",
+            "Product_Code__c": "MSE01",
+            "Is_Active__c": true,
+            "Description__c": "Ergonomic wireless mouse",
+            "Family__c": "Accessory",
+            "In_Stock__c": true,
+            "Price__c": 25.0,
+            "Category__c": "Accessories"
+        },
+        {
+            "attributes": { "type": "ASR_Product__c", "referenceId": "prod3" },
+            "Name": "4K Monitor",
+            "Product_Code__c": "MON4K",
+            "Is_Active__c": true,
+            "Description__c": "32-inch 4K UHD Monitor",
+            "Family__c": "Monitor",
+            "In_Stock__c": false,
+            "Price__c": 450.0,
+            "Category__c": "Electronics"
+        },
+        {
+            "attributes": { "type": "ASR_Product__c", "referenceId": "prod4" },
+            "Name": "Noise Cancelling Headphones",
+            "Product_Code__c": "NCHEAD",
+            "Is_Active__c": true,
+            "Description__c": "Over-ear noise cancelling headphones",
+            "Family__c": "Audio",
+            "In_Stock__c": true,
+            "Price__c": 299.0,
+            "Category__c": "Electronics"
+        }
+    ]
+}

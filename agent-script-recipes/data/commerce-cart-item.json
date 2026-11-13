@@ -1,0 +1,44 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Cart_Item__c",
+                "referenceId": "item1"
+            },
+            "Shopping_Cart__c": "@cart1",
+            "Product__c": "@prod1",
+            "Quantity__c": 1,
+            "Price__c": 1200.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Cart_Item__c",
+                "referenceId": "item2"
+            },
+            "Shopping_Cart__c": "@cart1",
+            "Product__c": "@prod2",
+            "Quantity__c": 1,
+            "Price__c": 25.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Cart_Item__c",
+                "referenceId": "item3"
+            },
+            "Shopping_Cart__c": "@cart2",
+            "Product__c": "@prod3",
+            "Quantity__c": 1,
+            "Price__c": 450.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Cart_Item__c",
+                "referenceId": "item4"
+            },
+            "Shopping_Cart__c": "@cart2",
+            "Product__c": "@prod4",
+            "Quantity__c": 1,
+            "Price__c": 299.0
+        }
+    ]
+}

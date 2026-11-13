@@ -1,0 +1,31 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Agent_Event_Log__c",
+                "referenceId": "event1"
+            },
+            "Event_Type__c": "Action Execution",
+            "Event_Data__c": "Sample event data",
+            "Timestamp__c": "2024-11-20T10:00:00Z"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Agent_Event_Log__c",
+                "referenceId": "event2"
+            },
+            "Event_Type__c": "User Login",
+            "Event_Data__c": "User logged in successfully",
+            "Timestamp__c": "2024-11-20T09:00:00Z"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Agent_Event_Log__c",
+                "referenceId": "event3"
+            },
+            "Event_Type__c": "Error",
+            "Event_Data__c": "Connection timeout",
+            "Timestamp__c": "2024-11-20T11:15:00Z"
+        }
+    ]
+}

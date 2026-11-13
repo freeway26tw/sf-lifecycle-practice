@@ -1,0 +1,116 @@
+[
+    {
+        "sobject": "Account",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["standard-setup.json"]
+    },
+    {
+        "sobject": "Account",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["commerce-account.json"]
+    },
+    {
+        "sobject": "Contact",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["travel-cruise-contact.json"]
+    },
+    {
+        "sobject": "Account",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["advanced-reasoning-account.json"]
+    },
+    {
+        "sobject": "ASR_Product__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["commerce-product.json"]
+    },
+    {
+        "sobject": "ASR_Shopping_Cart__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["commerce-cart.json"]
+    },
+    {
+        "sobject": "ASR_Cart_Item__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["commerce-cart-item.json"]
+    },
+    {
+        "sobject": "ASR_Hotel__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["travel-hotel.json"]
+    },
+    {
+        "sobject": "ASR_Hotel_Booking__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["travel-hotel-booking.json"]
+    },
+    {
+        "sobject": "ASR_Financial_Account__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["financial-account.json"]
+    },
+    {
+        "sobject": "ASR_Payment_Transaction__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["financial-payment.json"]
+    },
+    {
+        "sobject": "ASR_Transaction_Log__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["financial-transaction-log.json"]
+    },
+    {
+        "sobject": "Case",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["service-case.json"]
+    },
+    {
+        "sobject": "ASR_Order__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["advanced-reasoning-order.json"]
+    },
+    {
+        "sobject": "Case",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["advanced-reasoning-case.json"]
+    },
+    {
+        "sobject": "ASR_Agent_Event_Log__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["service-event.json"]
+    },
+    {
+        "sobject": "ASR_Report_Log__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["general-report.json"]
+    },
+    {
+        "sobject": "ASR_Customer_Interest__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["travel-cruise-customer-interest.json"]
+    },
+    {
+        "sobject": "ASR_Experience__c",
+        "saveRefs": false,
+        "resolveRefs": false,
+        "files": ["travel-cruise-experience.json"]
+    }
+]

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Order Object for Advanced Reasoning Patterns</description>
+    <label>Order Custom</label>
+    <pluralLabel>Orders Custom</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+    <nameField>
+        <label>Order Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>O-{0000}</displayFormat>
+    </nameField>
+</CustomObject>

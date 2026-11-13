@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>iirtI7AwMwoMIXK1sgL3Y681Fu11ioXbpqeX7IClwVs=_1</activeVersionIdentifier>
+    <developerName>Lead_Summary_ZH</developerName>
+    <masterLabel>Lead Summary (Chinese)</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content>你是一位企業 B2B 業務助理。請根據以下 Salesforce 潛在客戶（Lead）資料，用繁體中文整理一份簡短摘要（150 字以內），內容需涵蓋：客戶背景與公司、來源管道、聯絡資訊、諮詢內容重點、以及目前評等（Hot/Warm/Cold）與建議的優先聯繫程度。請直接輸出摘要內容，不要加上標題或前言。
+
+聯絡資訊：{!$Input:ContactInfo}
+來源資訊：{!$Input:SourceInfo}
+評等：{!$Input:Rating}
+評分：{!$Input:LeadScore}
+諮詢內容：{!$Input:Description}</content>
+        <inputs>
+            <apiName>ContactInfo</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Contact Info</masterLabel>
+            <referenceName>Input:ContactInfo</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>SourceInfo</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Source Info</masterLabel>
+            <referenceName>Input:SourceInfo</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Rating</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Rating</masterLabel>
+            <referenceName>Input:Rating</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>LeadScore</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Lead Score</masterLabel>
+            <referenceName>Input:LeadScore</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Description</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Description</masterLabel>
+            <referenceName>Input:Description</referenceName>
+            <required>true</required>
+        </inputs>
+        <primaryModel>sfdc_ai__DefaultGPT5Mini</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>iirtI7AwMwoMIXK1sgL3Y681Fu11ioXbpqeX7IClwVs=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>

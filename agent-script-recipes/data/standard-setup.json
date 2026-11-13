@@ -1,0 +1,42 @@
+{
+    "records": [
+        {
+            "attributes": { "type": "Account", "referenceId": "acc1" },
+            "Name": "Global Media",
+            "Industry": "Media",
+            "Contacts": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Contact",
+                            "referenceId": "con1"
+                        },
+                        "FirstName": "Jane",
+                        "LastName": "Doe",
+                        "Email": "jane.doe@example.com",
+                        "Phone": "555-0101"
+                    }
+                ]
+            }
+        },
+        {
+            "attributes": { "type": "Account", "referenceId": "acc2" },
+            "Name": "Acme Corp",
+            "Industry": "Technology",
+            "Contacts": {
+                "records": [
+                    {
+                        "attributes": {
+                            "type": "Contact",
+                            "referenceId": "con2"
+                        },
+                        "FirstName": "John",
+                        "LastName": "Smith",
+                        "Email": "john.smith@example.com",
+                        "Phone": "555-0102"
+                    }
+                ]
+            }
+        }
+    ]
+}

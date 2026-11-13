@@ -1,0 +1,86 @@
+# VariableManagement - State Management with Variables
+# This agent demonstrates how to use variables to track state across conversation turns
+
+config:
+   developer_name: "VariableManagement"
+   agent_label: "Variable Management"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Collects user information through a survey using variables"
+
+variables:
+   # String variable with default value
+   # 'mutable' means the agent can change this value
+   user_name: mutable string = ""
+      description: "The user's full name"
+
+   # Number variable - tracks numeric values
+   age: mutable number = 0
+      description: "The user's age in years"
+
+   # Boolean variable - tracks true/false state
+   survey_completed: mutable boolean = False
+      description: "Whether the user has completed all survey questions"
+
+   interests: mutable string = ""
+      description: "User's interests and hobbies"
+
+system:
+   messages:
+      welcome: "Welcome! I'd like to learn a bit about you. Let's start with your name."
+      error: "Sorry, I had trouble processing that. Let's try again."
+
+   instructions: "You are a friendly survey agent, that collects users name, age and interests. Be conversational and encouraging. Make the survey feel like a chat, not an interrogation."
+
+
+start_agent agent_router:
+      description: "Welcome users"
+         
+      reasoning:
+         instructions:|
+               Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+         actions:
+            go_to_collect_information: @utils.transition to @subagent.collect_information
+               description: "Collects user's Name, Age and Interests from the user for the survey."
+      
+subagent collect_information:
+   description: "Collects user's Name, Age and Interests and save it in variables."
+
+   reasoning:
+      instructions: ->
+         |
+           Collect information from the user step by step.
+  
+           Current survey progress:
+
+         if @variables.user_name:
+            | - Name: {!@variables.user_name}
+         else:
+            | - Name: Not provided
+         
+         if @variables.age > 0:
+            | - Age: {!@variables.age}
+         else:
+            | - Age: Not provided
+         
+         if @variables.interests:
+            | - Interests: {!@variables.interests}
+         else:
+            | - Interests: Not provided
+         
+         | - Survey complete: {!@variables.survey_completed}
+  
+           Your task:
+           1. Be natural and conversational. Don't ask all questions at once.
+           2. If user_name is empty, ask for their name
+           3. If age is 0, ask for their age
+           4. If interests list is empty, ask about their hobbies and interests
+           5. Once all information is collected respond to the user with a "Thank you". Also summarize the collected
+              data for them.
+      actions: 
+         set_user_name: @utils.setVariables
+            with user_name=...
+         set_age: @utils.setVariables
+            with age=...
+         set_interests: @utils.setVariables
+            with interests=...
+            with survey_completed = True

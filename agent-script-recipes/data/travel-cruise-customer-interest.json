@@ -1,0 +1,76 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef1"
+            },
+            "Contact__c": "@ContactRef1",
+            "Interest_Type__c": "Dining & Social"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef2"
+            },
+            "Contact__c": "@ContactRef1",
+            "Interest_Type__c": "Shore Excursions - Adventure"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef3"
+            },
+            "Contact__c": "@ContactRef1",
+            "Interest_Type__c": "Shore Excursions - Water"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef4"
+            },
+            "Contact__c": "@ContactRef2",
+            "Interest_Type__c": "Health & Wellness"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef5"
+            },
+            "Contact__c": "@ContactRef2",
+            "Interest_Type__c": "Dining & Social"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef6"
+            },
+            "Contact__c": "@ContactRef2",
+            "Interest_Type__c": "Shore Excursions - Cultural"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef7"
+            },
+            "Contact__c": "@ContactRef3",
+            "Interest_Type__c": "Entertainment & Nightlife"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef8"
+            },
+            "Contact__c": "@ContactRef3",
+            "Interest_Type__c": "Dining & Social"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Customer_Interest__c",
+                "referenceId": "CIRef9"
+            },
+            "Contact__c": "@ContactRef3",
+            "Interest_Type__c": "Special Interest & Exclusive"
+        }
+    ]
+}

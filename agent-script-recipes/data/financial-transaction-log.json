@@ -1,0 +1,31 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Transaction_Log__c",
+                "referenceId": "trans_log1"
+            },
+            "Amount__c": 100.0,
+            "Status__c": "Completed",
+            "To_Account__c": "@fin_acc2"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Transaction_Log__c",
+                "referenceId": "trans_log2"
+            },
+            "Amount__c": 500.0,
+            "Status__c": "Completed",
+            "To_Account__c": "@fin_acc1"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Transaction_Log__c",
+                "referenceId": "trans_log3"
+            },
+            "Amount__c": 50.0,
+            "Status__c": "Pending",
+            "To_Account__c": "@fin_acc3"
+        }
+    ]
+}

@@ -1,0 +1,141 @@
+# ContextHandling - Working with Session and Platform Context
+# This agent demonstrates using linked variables from external context
+
+config:
+   developer_name: "ContextHandling"
+   agent_label: "Context Handling"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Uses platform context for personalized experiences"
+
+variables:
+   # Linked variables from messaging session context
+   session_id: linked string
+      description: "Unique session identifier"
+      source: @messagingSession.sessionID
+
+   user_id: linked string
+      description: "Authenticated user ID"
+      source: @messagingSession.userID
+
+   channel_type: linked string
+      description: "Communication channel (web, mobile, sms)"
+      source: @messagingSession.channelType
+
+   # Mutable variables derived from context
+   user_name: mutable string = ""
+      description: "User's display name (fetched using user_id)"
+
+   user_preferences: mutable object = {}
+      description: "User preferences loaded from user_id"
+
+   session_start_time: mutable string = ""
+      description: "When this session started"
+
+   interaction_count: mutable number = 0
+      description: "Number of interactions in this session"
+
+system:
+   messages:
+      welcome: "Welcome! I'm your personalized assistant."
+      error: "I encountered an issue accessing your information."
+
+   instructions: "You are a personalized assistant that uses user context to provide tailored experiences."
+
+start_agent agent_router:
+   description: "Welcome users with personalized greeting based on context"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         begin_service: @utils.transition to @subagent.personalized_service
+            description: "Start providing personalized service"
+
+subagent personalized_service:
+   description: "Provides personalized service using context data"
+
+   actions:
+      load_user_profile:
+         description: "Loads user profile using user ID"
+         inputs:
+            user_id: string
+               description: "The unique identifier of the user whose profile to load"
+               is_required: True
+         outputs:
+            name: string
+               description: "The user's display name or full name"
+            preferences: object
+               description: "User preferences object containing settings like language, timezone, notification preferences"
+         target: "flow://LoadUserProfile"
+
+      log_interaction:
+         description: "Logs interaction for analytics"
+         inputs:
+            session_id: string
+               description: "The unique session identifier for tracking this conversation session"
+               is_required: True
+            user_id: string
+               description: "The unique identifier of the user in this interaction"
+               is_required: True
+            channel: string
+               description: "The communication channel used (web, mobile, sms, etc.)"
+               is_required: True
+         outputs:
+            success: boolean
+               description: "Indicates whether the interaction was successfully logged to analytics"
+         target: "flow://LogInteraction"
+
+   reasoning:
+      instructions:->
+         # Load user profile if not already loaded
+         if @variables.user_id and not @variables.user_name:
+            run @actions.load_user_profile
+               with user_id=@variables.user_id
+               set @variables.user_name = @outputs.name
+               set @variables.user_preferences = @outputs.preferences
+
+         # Use context for personalization
+         | Personalized Service
+           Session ID: {!@variables.session_id}
+         
+         if @variables.user_name:
+            | User: {!@variables.user_name}
+         else:
+            | User: {!@variables.user_id}
+         
+         | Channel: {!@variables.channel_type}
+           Interactions: {!@variables.interaction_count}
+
+         # Adapt behavior based on channel
+         if @variables.channel_type == "sms":
+            | Keep responses brief - user is on SMS.
+              Use short, direct answers.
+
+         if @variables.channel_type == "web":
+            | User is on web - can provide detailed responses.
+              Use rich formatting and examples.
+
+         if @variables.channel_type == "mobile":
+            | User is on mobile app.
+              Balance detail with readability.
+
+         # Use preferences for personalization
+         if @variables.user_preferences:
+            | Apply user preferences:
+              if {!@variables.user_preferences.language}
+                Language: {!@variables.user_preferences.language}
+              if {!@variables.user_preferences.timezone}
+                Timezone: {!@variables.user_preferences.timezone}
+
+         # Track session activity
+         set @variables.interaction_count = @variables.interaction_count + 1
+
+         | Provide helpful, personalized assistance.
+           Session context: {!@variables.session_id}
+           Log the interaction using {!@actions.log_interaction}.
+
+      actions:
+         log_interaction: @actions.log_interaction
+            with session_id=@variables.session_id
+            with user_id=@variables.user_id
+            with channel=@variables.channel_type

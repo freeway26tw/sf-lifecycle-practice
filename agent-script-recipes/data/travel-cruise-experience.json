@@ -1,0 +1,144 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef1"
+            },
+            "Name": "Captain's Welcome Gala Dinner",
+            "Type__c": "Dining & Social",
+            "Start_Time__c": "19:00:00.000Z",
+            "Duration_Hours__c": 2.5
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef2"
+            },
+            "Name": "Mixology Masterclass: Caribbean Cocktails",
+            "Type__c": "Dining & Social",
+            "Start_Time__c": "16:00:00.000Z",
+            "Duration_Hours__c": 1.5
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef3"
+            },
+            "Name": "Sunset Deck Yoga & Meditation",
+            "Type__c": "Health & Wellness",
+            "Start_Time__c": "18:30:00.000Z",
+            "Duration_Hours__c": 1.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef5"
+            },
+            "Name": "Island Snorkel & Coral Reef Excursion",
+            "Type__c": "Shore Excursions - Water",
+            "Start_Time__c": "09:30:00.000Z",
+            "Duration_Hours__c": 3.5
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef6"
+            },
+            "Name": "Rafting Rush: River Rapids",
+            "Type__c": "Shore Excursions - Adventure",
+            "Start_Time__c": "13:00:00.000Z",
+            "Duration_Hours__c": 4.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef7"
+            },
+            "Name": "Historical City Walking Tour",
+            "Type__c": "Shore Excursions - Cultural",
+            "Start_Time__c": "10:00:00.000Z",
+            "Duration_Hours__c": 2.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef8"
+            },
+            "Name": "Kids' Pirate Hunt & Splash Zone",
+            "Type__c": "Family & Youth",
+            "Start_Time__c": "14:00:00.000Z",
+            "Duration_Hours__c": 2.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef9"
+            },
+            "Name": "Teen Gaming Lounge Tournament",
+            "Type__c": "Family & Youth",
+            "Start_Time__c": "20:00:00.000Z",
+            "Duration_Hours__c": 1.5
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef10"
+            },
+            "Name": "Broadway Review Show: 'Ocean Rhythms'",
+            "Type__c": "Entertainment & Nightlife",
+            "Start_Time__c": "21:30:00.000Z",
+            "Duration_Hours__c": 1.5
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef11"
+            },
+            "Name": "Late-Night Comedy Club",
+            "Type__c": "Entertainment & Nightlife",
+            "Start_Time__c": "23:00:00.000Z",
+            "Duration_Hours__c": 1.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef12"
+            },
+            "Name": "Bridge Tour & Maritime History",
+            "Type__c": "Special Interest & Exclusive",
+            "Start_Time__c": "11:00:00.000Z",
+            "Duration_Hours__c": 1.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef13"
+            },
+            "Name": "Casino High-Stakes Poker Tournament",
+            "Type__c": "Entertainment & Nightlife",
+            "Start_Time__c": "22:00:00.000Z",
+            "Duration_Hours__c": 3.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef14"
+            },
+            "Name": "Culinary Demo: Regional Seafood",
+            "Type__c": "Dining & Social",
+            "Start_Time__c": "15:00:00.000Z",
+            "Duration_Hours__c": 1.0
+        },
+        {
+            "attributes": {
+                "type": "ASR_Experience__c",
+                "referenceId": "CruiseExpRef15"
+            },
+            "Name": "Spa Treatment: Deep Tissue Massage",
+            "Type__c": "Health & Wellness",
+            "Start_Time__c": "11:30:00.000Z",
+            "Duration_Hours__c": 1.5
+        }
+    ]
+}

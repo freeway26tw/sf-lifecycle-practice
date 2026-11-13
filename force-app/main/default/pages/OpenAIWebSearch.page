@@ -1,0 +1,227 @@
+<apex:page
+  controller="OpenAIWebSearchController"
+  showHeader="false"
+  sidebar="false"
+  applyBodyTag="false"
+  applyHtmlTag="false"
+  docType="html-5.0"
+  standardStylesheets="false"
+  title="OpenAI Web Search"
+>
+  <html>
+    <head>
+      <apex:slds />
+      <style>
+        body {
+          background-color: #f3f2f2;
+          font-family:
+            -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+          margin: 0;
+          padding: 2rem;
+        }
+        .oai-container {
+          max-width: 960px;
+          margin: 0 auto;
+        }
+        .oai-grid {
+          display: flex;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+        .oai-col {
+          flex: 1 1 380px;
+        }
+        .oai-badge-success {
+          background-color: #04844b;
+          color: #fff;
+        }
+        .oai-badge-error {
+          background-color: #ba0517;
+          color: #fff;
+        }
+        .oai-response {
+          white-space: pre-wrap;
+          line-height: 1.5;
+        }
+        .oai-citations li {
+          margin-bottom: 0.25rem;
+          word-break: break-word;
+        }
+        .oai-token-stats {
+          display: flex;
+          gap: 1rem;
+        }
+        .oai-token-stat {
+          text-align: center;
+          flex: 1;
+        }
+        .oai-token-stat .value {
+          font-size: 1.5rem;
+          font-weight: 700;
+          display: block;
+        }
+      </style>
+    </head>
+    <body class="slds-scope">
+      <div class="oai-container">
+        <div class="slds-page-header slds-m-bottom_medium">
+          <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+              <div class="slds-media">
+                <div class="slds-media__body">
+                  <h1 class="slds-page-header__title slds-truncate">
+                    OpenAI Web Search
+                  </h1>
+                  <p class="slds-page-header__name-meta">
+                    Calls the OpenAI Responses API (web_search tool) via
+                    OpenAIWebSearchAction
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <apex:form>
+          <div class="oai-grid">
+            <div class="oai-col">
+              <div class="slds-card">
+                <div class="slds-card__header slds-grid">
+                  <h2 class="slds-card__header-title slds-text-heading_small">
+                    Search
+                  </h2>
+                </div>
+                <div class="slds-card__body slds-card__body_inner">
+                  <div class="slds-form-element slds-m-bottom_medium">
+                    <apex:outputLabel
+                      value="OpenAI API Key"
+                      for="apiKeyInput"
+                      styleClass="slds-form-element__label"
+                    />
+                    <div class="slds-form-element__control">
+                      <apex:inputSecret
+                        id="apiKeyInput"
+                        value="{!apiKey}"
+                        styleClass="slds-input"
+                        html-placeholder="sk-..."
+                      />
+                    </div>
+                    <div class="slds-form-element__help">
+                      Used only for this request; never stored.
+                    </div>
+                  </div>
+                  <div class="slds-form-element slds-m-bottom_medium">
+                    <apex:outputLabel
+                      value="Search Query"
+                      for="queryInput"
+                      styleClass="slds-form-element__label"
+                    />
+                    <div class="slds-form-element__control">
+                      <apex:inputTextarea
+                        id="queryInput"
+                        value="{!searchQuery}"
+                        styleClass="slds-textarea"
+                        rows="4"
+                        html-placeholder="What would you like to search for?"
+                      />
+                    </div>
+                  </div>
+                  <apex:commandButton
+                    value="Search"
+                    action="{!search}"
+                    status="searchStatus"
+                    reRender="resultsPanel, messagesPanel"
+                    styleClass="slds-button slds-button_brand"
+                  />
+                  <apex:actionStatus
+                    id="searchStatus"
+                    startText=" Searching..."
+                    styleClass="slds-m-left_small slds-text-body_small"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="oai-col">
+              <apex:outputPanel id="messagesPanel">
+                <apex:outputPanel rendered="{!hasError}">
+                  <div
+                    class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error slds-m-bottom_medium"
+                    role="alert"
+                  >
+                    <span class="slds-assistive-text">Error</span>
+                    <h2><apex:outputText value="{!errorMessage}" /></h2>
+                  </div>
+                </apex:outputPanel>
+              </apex:outputPanel>
+
+              <apex:outputPanel id="resultsPanel">
+                <apex:outputPanel rendered="{!hasResult}">
+                  <div class="slds-card">
+                    <div class="slds-card__header slds-grid">
+                      <h2
+                        class="slds-card__header-title slds-text-heading_small"
+                      >
+                        Result
+                        <span
+                          class="slds-badge {!statusBadgeStyleClass} slds-m-left_small"
+                          >{!status}</span
+                        >
+                      </h2>
+                    </div>
+                    <div class="slds-card__body slds-card__body_inner">
+                      <p class="oai-response">
+                        <apex:outputText value="{!responseText}" />
+                      </p>
+
+                      <apex:outputPanel rendered="{!hasCitations}">
+                        <h3
+                          class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small"
+                        >
+                          Citations
+                        </h3>
+                        <ul class="oai-citations slds-list_dotted">
+                          <apex:repeat value="{!citationLines}" var="citation">
+                            <li><apex:outputText value="{!citation}" /></li>
+                          </apex:repeat>
+                        </ul>
+                      </apex:outputPanel>
+
+                      <apex:outputPanel
+                        rendered="{!hasTokenStats}"
+                        layout="block"
+                        styleClass="oai-token-stats slds-border_top slds-m-top_medium slds-p-top_medium"
+                      >
+                        <div class="oai-token-stat">
+                          <span class="value"
+                            ><apex:outputText value="{!inputTokens}"
+                          /></span>
+                          <span class="slds-text-body_small">Input tokens</span>
+                        </div>
+                        <div class="oai-token-stat">
+                          <span class="value"
+                            ><apex:outputText value="{!outputTokens}"
+                          /></span>
+                          <span class="slds-text-body_small"
+                            >Output tokens</span
+                          >
+                        </div>
+                        <div class="oai-token-stat">
+                          <span class="value"
+                            ><apex:outputText value="{!totalTokens}"
+                          /></span>
+                          <span class="slds-text-body_small">Total tokens</span>
+                        </div>
+                      </apex:outputPanel>
+                    </div>
+                  </div>
+                </apex:outputPanel>
+              </apex:outputPanel>
+            </div>
+          </div>
+        </apex:form>
+      </div>
+    </body>
+  </html>
+</apex:page>

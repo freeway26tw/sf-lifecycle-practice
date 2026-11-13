@@ -1,0 +1,24 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Report_Log__c",
+                "referenceId": "report1"
+            },
+            "Report_Type__c": "Sales",
+            "Start_Date__c": "2024-01-01",
+            "End_Date__c": "2024-12-31",
+            "Format__c": "PDF"
+        },
+        {
+            "attributes": {
+                "type": "ASR_Report_Log__c",
+                "referenceId": "report2"
+            },
+            "Report_Type__c": "Support Efficiency",
+            "Start_Date__c": "2024-07-01",
+            "End_Date__c": "2024-09-30",
+            "Format__c": "CSV"
+        }
+    ]
+}

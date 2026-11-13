@@ -1,0 +1,16 @@
+{
+    "records": [
+        {
+            "attributes": { "type": "ASR_Hotel__c", "referenceId": "hotel1" },
+            "Name": "Grand Plaza",
+            "City__c": "San Francisco",
+            "Location__c": "Downtown"
+        },
+        {
+            "attributes": { "type": "ASR_Hotel__c", "referenceId": "hotel2" },
+            "Name": "Seaside Resort",
+            "City__c": "San Francisco",
+            "Location__c": "Beachfront"
+        }
+    ]
+}

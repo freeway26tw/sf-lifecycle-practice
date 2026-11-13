@@ -1,0 +1,78 @@
+# SimpleQA - Focused Question & Answer Agent
+# Demonstrates creating a single-subagent Q&A agent with clear instructions and knowledge retrieval
+
+config:
+   developer_name: "SimpleQA"
+   agent_label: "Simple QA"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Answers common questions about products and services"
+
+# System block defines the agent's overall personality and capabilities
+system:
+   messages:
+      welcome: "Hi! I'm here to answer your questions about our products and services. What would you like to know?"
+      error: "I apologize, but I encountered an issue. Please try asking your question again."
+
+   # System instructions set the agent's tone and high-level behavior
+   # Keep these focused on personality, not specific tasks
+   instructions: "You are a knowledgeable product specialist who helps customers understand products and services. Be clear, concise, and helpful. If you don't know something, admit it honestly."
+
+start_agent agent_router:
+   description: "Welcome users and begin answering their product questions"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         start_qa: @utils.transition to @subagent.product_qa
+            description: "Begin product question and answer session"
+
+# Single subagent agent pattern: One subagent handles all interactions
+# This is appropriate for focused agents with a single purpose
+subagent product_qa:
+   description: "Answers questions about products, features, pricing, and availability"
+
+   # Actions block: Define external tools the agent can use
+   # In this case, an action to look up product information
+   actions:
+      get_product_info:
+         description: "Look up detailed information about a specific product"
+         inputs:
+            product_name: string
+               description: "Name of the product to look up information for"
+               is_required: True
+         outputs:
+            product_details: string
+               description: "Detailed product information including features, specifications, and description"
+            price: object
+               description: "Current price of the product"
+               complex_data_type_name: "lightning__currencyType"
+            in_stock: boolean
+               description: "Indicates whether the product is currently in stock and available"
+         target: "flow://GetProductInfo"
+
+   # Reasoning instructions are where you specify what the agent should actually do
+   # These are more specific than system instructions
+   reasoning:
+      instructions:->
+         | Answer the user's questions about products and services clearly and accurately.
+           When the user asks about a specific product, use {!@actions.get_product_info}
+           to look up current information.
+
+           When answering:
+           - Be specific and provide helpful details
+           - If the question is unclear, ask for clarification
+           - Stay focused on product-related topics
+           - Use {!@actions.get_product_info} to get accurate, up-to-date information
+        
+           Topics you can help with:
+           - Product features and specifications
+           - Pricing and packages
+           - Availability and delivery
+           - Comparisons between products
+
+      # Actions available during reasoning
+      # The agent can call this when users ask about products
+      actions:
+         get_product_info: @actions.get_product_info
+            with product_name=...

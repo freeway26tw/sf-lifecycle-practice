@@ -1,0 +1,57 @@
+# InstructionActionReferences - Action References in Instructions
+# Demonstrates how to reference and guide action usage directly within reasoning instructions
+
+config:
+   developer_name: "InstructionActionReferences"
+   agent_label: "Instruction Action References"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Demonstrates embedding action references in instructions"
+
+variables:
+   next_open_time: mutable string = "9:00 AM Tomorrow"
+
+system:
+   messages:
+      welcome: "Hi! I can help you create support cases. If the user has an issue that requires support, please help them."
+      error: "Something went wrong."
+
+   instructions: "You are a support assistant."
+
+start_agent agent_router:
+   description: "Start subagent"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         start: @utils.transition to @subagent.case_management
+
+subagent case_management:
+   description: "Manages support cases"
+   
+   actions:
+      create_case:
+         description: "Creates a support case"
+         inputs:
+            subject: string
+               description: "Subject of the case"
+               is_required: True
+         outputs:
+            case_number: string
+               description: "The created case number"
+         target: "flow://CreateCase"
+
+   reasoning:
+      instructions:->
+         | If the user has an issue that requires support, please help them.
+         
+         if @variables.next_open_time:                                                           # Procedural if block checks the variable directly
+            | We are currently OUTSIDE business hours. Support opens at {!@variables.next_open_time}.
+              Create a support case using {!@actions.create_case} and share the Case Number.
+         else:
+            | We are currently WITHIN business hours. Support is available now.
+              Help the user resolve their issue directly.
+      actions:
+            create_case: @actions.create_case
+               with subject=...
+

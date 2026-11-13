@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Agent Explorer Access</label>
+    <description>Grants visibility to the Agent Explorer UI Bundle app in the App Launcher.</description>
+    <applicationVisibilities>
+        <application>AgentExplorer</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+</PermissionSet>

@@ -1,0 +1,175 @@
+# BidirectionalNavigation - Subagent Handoff and Return Pattern
+# Demonstrates bidirectional navigation where subagents delegate to specialists and receive control back
+
+config:
+   developer_name: "BidirectionalNavigation"
+   agent_label: "Bidirectional Navigation"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Demonstrates bidirectional navigation pattern (handoff and return)"
+
+variables:
+   # Customer support state
+   issue_type: mutable string = ""
+   issue_description: mutable string = ""
+   customer_id: mutable string = ""
+
+   # Technical specialist consultation
+   technical_assessment: mutable string = ""
+   solution_provided: mutable boolean = False
+
+   # Billing specialist consultation
+   billing_analysis: mutable string = ""
+   billing_resolved: mutable boolean = False
+
+system:
+   messages:
+      welcome: "Welcome to Customer Support! How can I help you today?"
+      error: "I encountered an issue processing your request. Please try again."
+
+   instructions: "You are a support agent that delegates to specialists when needed."
+
+start_agent agent_router:
+   description: "Welcome customers and route them to the appropriate support specialist"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         general_support: @utils.transition to @subagent.general_support
+            description: "Start with general customer support"
+
+# MAIN SUBAGENT: General Support
+subagent general_support:
+   description: "General customer support entry point"
+
+   actions:
+      analyze_technical_issue:
+         description: "Perform technical analysis"
+         inputs:
+            issue_description: string
+               description: "Detailed description of the technical issue to analyze"
+               is_required: True
+         outputs:
+            assessment: string
+               description: "Technical assessment and diagnosis of the issue"
+            can_resolve: boolean
+               description: "Indicates whether the issue can be resolved by technical support"
+         target: "flow://AnalyzeTechnicalIssue"
+
+      analyze_billing_issue:
+         description: "Analyze billing inquiry"
+         inputs:
+            issue_description: string
+               description: "Description of the billing issue or inquiry"
+               is_required: True
+            customer_id: string
+               description: "The unique identifier of the customer with the billing issue"
+               is_required: True
+         outputs:
+            analysis: string
+               description: "Analysis of the billing issue including account review and findings"
+            resolved: boolean
+               description: "Indicates whether the billing issue was resolved"
+         target: "flow://AnalyzeBillingIssue"
+
+      create_escalation_ticket:
+         description: "Create escalation ticket"
+         inputs:
+            issue_type: string
+               description: "Type of issue being escalated (technical, billing, general)"
+               is_required: True
+            issue_description: string
+               description: "Detailed description of the issue requiring escalation"
+               is_required: True
+            customer_id: string
+               description: "The unique identifier of the customer for the escalation ticket"
+               is_required: True
+         outputs:
+            ticket_id: string
+               description: "Unique identifier of the created escalation ticket"
+         target: "flow://CreateEscalationTicket"
+
+   reasoning:
+      instructions:->
+         | I'm here to help! I can assist with:
+           - Technical issues (I'll consult our tech specialist)
+           - Billing questions (I'll consult our billing specialist)
+           - General inquiries
+          
+           What can I help you with today?
+
+      actions:
+         # Delegate to technical specialist
+         consult_technical: @utils.transition to @subagent.technical_specialist
+
+         # Delegate to billing specialist
+         consult_billing: @utils.transition to @subagent.billing_specialist
+
+# SPECIALIST SUBAGENT: Technical Support
+subagent technical_specialist:
+   description: "Technical support specialist - handles complex technical issues"
+
+   actions:
+      analyze_technical_issue:
+         description: "Perform technical analysis"
+         inputs:
+            issue_description: string
+               description: "Detailed description of the technical issue to analyze"
+               is_required: True
+         outputs:
+            assessment: string
+               description: "Technical assessment and diagnosis of the issue"
+            can_resolve: boolean
+               description: "Indicates whether the issue can be resolved by technical support"
+         target: "flow://AnalyzeTechnicalIssue"
+
+   reasoning:
+      instructions:->
+         | Technical Specialist here! Let me analyze your issue.
+          
+           Issue: {!@variables.issue_description}
+
+      actions:
+         analyze_technical: @actions.analyze_technical_issue
+            with issue_description=@variables.issue_description
+            set @variables.technical_assessment = @outputs.assessment
+            set @variables.solution_provided = @outputs.can_resolve
+            # Return control to general support
+            transition to @subagent.general_support
+
+# SPECIALIST SUBAGENT: Billing Support
+subagent billing_specialist:
+   description: "Billing specialist - handles billing and payment issues"
+
+   actions:
+      analyze_billing_issue:
+         description: "Analyze billing inquiry"
+         inputs:
+            issue_description: string
+               description: "Description of the billing issue or inquiry"
+               is_required: True
+            customer_id: string
+               description: "The unique identifier of the customer with the billing issue"
+               is_required: True
+         outputs:
+            analysis: string
+               description: "Analysis of the billing issue including account review and findings"
+            resolved: boolean
+               description: "Indicates whether the billing issue was resolved"
+         target: "flow://AnalyzeBillingIssue"
+
+   reasoning:
+      instructions:->
+         | Billing Specialist here! Let me review your account.
+          
+           Customer ID: {!@variables.customer_id}
+           Issue: {!@variables.issue_description}
+
+      actions:
+         analyze_billing: @actions.analyze_billing_issue
+            with issue_description=@variables.issue_description
+            with customer_id=@variables.customer_id
+            set @variables.billing_analysis = @outputs.analysis
+            set @variables.billing_resolved = @outputs.resolved
+            # Return control to general support
+            transition to @subagent.general_support

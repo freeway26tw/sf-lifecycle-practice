@@ -1,0 +1,120 @@
+# ReasoningInstructions - Procedural Templating with Dynamic Instructions
+# This agent demonstrates how to build instructions dynamically using procedures
+
+config:
+   developer_name: "ReasoningInstructions"
+   agent_label: "Reasoning Instructions"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Checks order status and provides dynamic instructions based on order state"
+
+variables:
+   order_id: mutable string = ""
+      description: "The order ID to check"
+
+   order_status: mutable string = ""
+      description: "Current status of the order"
+
+   order_details: mutable object = {}
+      description: "Full order details"
+
+   tracking_number: mutable string = ""
+      description: "Shipping tracking number"
+
+system:
+   messages:
+      welcome: "Hi! I can help you check your order status. What's your order number?"
+      error: "I had trouble looking up that order. Please verify the order number."
+
+   instructions: "You are an order status assistant. Help customers track their orders and resolve issues."
+
+start_agent agent_router:
+   description: "Welcome customers and begin helping with order status"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         check_order: @utils.transition to @subagent.order_status
+            description: "Start checking order status"
+
+subagent order_status:
+   description: "Looks up and explains order status"
+
+   actions:
+      get_order_status:
+         description: "Retrieves current status for an order"
+         inputs:
+            order_id: string
+               description: "The unique order identifier to check the status for"
+               is_required: True
+         outputs:
+            status: string
+               description: "Current order status (pending, shipped, delivered, cancelled)"
+            details: object
+               description: "Detailed order information including items, dates, and customer information"
+               complex_data_type_name: "lightning__recordInfoType"
+            tracking_number: string
+               description: "Shipping tracking number if the order has been shipped"
+         target: "flow://GetOrderStatus"
+
+   reasoning:
+      # Procedural instructions: Use -> to create a procedure
+      # This runs when the agent starts reasoning
+      # It allows you to call actions and build instructions dynamically
+      instructions:->
+         # First, check if we have an order ID
+         if not @variables.order_id:
+            # If no order ID, return simple instructions
+            | Ask the customer for their order number so you can look up the status.
+
+         # If we have an order ID but haven't fetched status yet
+         if @variables.order_id and not @variables.order_status:
+            # Call the action to get order status
+            run @actions.get_order_status
+               with order_id=@variables.order_id
+               set @variables.order_status = @outputs.status
+               set @variables.order_details = @outputs.details
+               set @variables.tracking_number = @outputs.tracking_number
+
+         if @variables.order_status:
+            # Now build instructions based on the order status
+            | The customer's order {!@variables.order_id} has status: {!@variables.order_status}
+
+         if @variables.order_id and not @variables.order_status:
+            | No order was found for order ID {!@variables.order_id}.
+              Ask the customer to verify the order number and try again.
+
+         # Different instructions for different statuses
+         if @variables.order_status == "pending":
+            | The order is being processed. Let the customer know:
+              Order is confirmed and being prepared
+              They'll receive tracking info within 24 hours
+              Estimated processing time is 1-2 business days
+
+         if @variables.order_status == "shipped":
+            | The order has been shipped! Provide:
+              Tracking number: {!@variables.tracking_number}
+              Estimated delivery date from order details
+              Remind them to check delivery address
+
+         if @variables.order_status == "delivered":
+            | The order was delivered.
+              Confirm they received it
+              Ask if everything was satisfactory
+              If there are issues, offer to help with returns or support
+
+         if @variables.order_status == "cancelled":
+            | This order was cancelled.
+              Explain the cancellation
+              Check if refund was processed
+              Ask if they'd like to place a new order
+
+         # Always end with helpful next steps
+         | Be proactive and helpful. Anticipate what the customer might need next.
+
+      actions:
+         get_order_status: @actions.get_order_status
+            with order_id=...
+            set @variables.order_status = @outputs.status
+            set @variables.order_details = @outputs.details
+            set @variables.tracking_number = @outputs.tracking_number

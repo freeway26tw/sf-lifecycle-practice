@@ -1,0 +1,152 @@
+# AdvancedInputBindings - Mastering Action Input Patterns
+# This agent demonstrates all input binding techniques
+
+config:
+   developer_name: "AdvancedInputBindings"
+   agent_label: "Advanced Input Bindings"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Generates reports using various input binding patterns"
+
+variables:
+   report_type: mutable string = ""
+      description: "Type of report to generate"
+
+   start_date: mutable string = ""
+      description: "Report start date"
+
+   end_date: mutable string = ""
+      description: "Report end date"
+
+   user_id: mutable string = "USER123"
+      description: "Current user ID (preset)"
+
+   include_charts: mutable boolean = True
+      description: "Whether to include charts"
+
+   format: mutable string = "pdf"
+      description: "Output format"
+
+system:
+   messages:
+      welcome: "I'll help you generate reports with your specified parameters."
+      error: "Report generation failed."
+
+   instructions: "You are a report generation assistant."
+
+start_agent agent_router:
+   description: "Welcome users and begin report generation"
+   
+   reasoning: 
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.     
+      actions:
+         start_report_generation: @utils.transition to @subagent.report_generation
+
+subagent report_generation:
+   description: "Generates reports with various input binding patterns"
+
+   actions:
+      generate_report:
+         description: "Generates a custom report"
+         inputs:
+            report_type: string
+               description: "Type of report to generate (e.g., sales, analytics, performance, financial)"
+               is_required: True
+            start_date: object
+               description: "Report start date in ISO format (YYYY-MM-DD) defining the beginning of the data range"
+               complex_data_type_name: "lightning__dateType"
+               is_required: True
+            end_date: object
+               description: "Report end date in ISO format (YYYY-MM-DD) defining the end of the data range"
+               complex_data_type_name: "lightning__dateType"
+               is_required: True
+            user_id: string
+               description: "The unique identifier of the user generating the report (for access control and audit)"
+               is_required: True
+            format: string
+               description: "Output format for the report (pdf, csv, excel, or html)"
+               is_required: False
+            include_charts: boolean
+               description: "Whether to include visual charts and graphs in the report output"
+               is_required: False
+            options: string
+               description: "Additional report configuration options such as filters, groupings, and custom parameters"
+               is_required: False
+         outputs:
+            report_url: string
+               description: "URL where the generated report can be accessed or downloaded"
+            success: boolean
+               description: "Indicates whether the report was generated successfully"
+            report_type: string
+               description: "The report type used"
+            start_date: object
+               description: "The start date used"
+               complex_data_type_name: "lightning__dateType"
+            end_date: object
+               description: "The end date used"
+               complex_data_type_name: "lightning__dateType"
+            user_id: string
+               description: "The user ID used"
+            format: string
+               description: "The format used"
+            include_charts: boolean
+               description: "Whether charts were included"
+         target: "flow://GenerateReport"
+
+   reasoning:
+      instructions:->
+         | Generate reports with custom parameters.
+
+           Help user specify:
+           - Report type
+           - Date range
+           - Output format
+
+           Include the generated report link as full raw URL starting with https://, so it's clickable.
+      actions:
+         # Pattern 1: LLM slot-filling (...)
+         # LLM extracts values from conversation
+         create_simple_report: @actions.generate_report
+            description: "Generate a new report where the user provides all details (type, dates, etc.) explicitly."
+            with report_type=...
+            with start_date=...
+            with end_date=...
+            # Fixed values
+            with user_id=@variables.user_id
+            with format="pdf"
+            with include_charts=True
+            with options=...
+
+            # Capture values into variables for future use
+            set @variables.report_type = @outputs.report_type
+            set @variables.start_date = @outputs.start_date
+            set @variables.end_date = @outputs.end_date
+            set @variables.user_id = @outputs.user_id
+            set @variables.format = @outputs.format
+            set @variables.include_charts = @outputs.include_charts
+
+         # Pattern 2: Variable binding
+         # Use stored variable values
+         create_custom_report: @actions.generate_report
+            description: "Generate a report using ONLY the previously stored variable values for type, dates, and settings."
+            available when @variables.report_type != ""
+            with report_type=@variables.report_type
+            with start_date=@variables.start_date
+            with end_date=@variables.end_date
+            with user_id=@variables.user_id
+            with format=@variables.format
+            with include_charts=@variables.include_charts
+            with options=...
+
+         # Pattern 3: Mixed binding
+         # Combine fixed, variable, and LLM-filled
+         create_mixed_report: @actions.generate_report
+            description: "Generate a report with a NEW report type provided by the user, but reusing the START and END DATES from stored variables. Use this when user says 'with those dates'."
+            available when @variables.start_date != ""
+            with report_type=...
+            with start_date=@variables.start_date
+            with end_date=@variables.end_date
+            with user_id=@variables.user_id
+            with format="pdf"
+            with include_charts=True
+            with options=...

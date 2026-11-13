@@ -1,0 +1,21 @@
+{
+    "records": [
+        {
+            "attributes": { "type": "ASR_Task__c", "referenceId": "task1" },
+            "Title__c": "Follow up with customer",
+            "Status__c": "Not Started",
+            "Priority__c": "High",
+            "External_ID__c": 1001
+        },
+        {
+            "attributes": {
+                "type": "ASR_Report_Log__c",
+                "referenceId": "report1"
+            },
+            "Report_Type__c": "Sales",
+            "Start_Date__c": "2024-01-01",
+            "End_Date__c": "2024-12-31",
+            "Format__c": "PDF"
+        }
+    ]
+}

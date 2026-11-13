@@ -1,0 +1,165 @@
+# MultiSubagentNavigation - Managing Multiple Subagents and Transitions
+# This agent demonstrates how to use multiple subagents and transition between them
+
+config:
+   developer_name: "MultiSubagentNavigation"
+   agent_label: "Multi Subagent Navigation"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Multi-subagent agent that handles browsing, booking, and support"
+
+variables:
+   hotel_name: mutable string = ""
+      description: "Selected hotel name"
+
+   check_in_date: mutable string = ""
+      description: "Check-in date"
+
+   check_out_date: mutable string = ""
+      description: "Check-out date"
+
+   booking_confirmed: mutable boolean = False
+      description: "Whether booking has been confirmed"
+
+   booking_id: mutable string = ""
+      description: "Confirmed booking ID"
+
+system:
+   messages:
+      welcome: "Welcome to our hotel booking service! I can help you browse hotels, make bookings, or answer questions."
+      error: "I encountered an issue. Let me help you from here."
+
+   instructions: "You are a professional hotel booking assistant. Be helpful, accurate, and guide users through their journey. Never ask for guest details, number of guests, special requests, or other preferences."
+
+start_agent agent_router:
+   description: "Welcome users and determine their hotel service needs"
+
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+         Route to the matching subagent immediately based on the user's message.
+      actions:
+         browse_hotels: @utils.transition to @subagent.hotel_browse
+            description: "Browse and search for available hotels"
+
+         hotel_booking: @utils.transition to @subagent.hotel_booking
+            description: "Book a hotel"
+
+         view_booking: @utils.transition to @subagent.hotel_confirmation
+            description: "View existing booking confirmations"
+            available when @variables.booking_confirmed == True
+
+# SUBAGENT 1: Browse available hotels
+subagent hotel_browse:
+   description: "Browse available hotels and view information"
+
+   actions:
+      search_hotels:
+         description: "Search for available hotels"
+         inputs:
+            location: string
+               description: "City or location to search for hotels in"
+               is_required: True
+            check_in: string
+               description: "Check-in date in ISO format (YYYY-MM-DD)"
+               is_required: True
+            check_out: string
+               description: "Check-out date in ISO format (YYYY-MM-DD)"
+               is_required: True
+         outputs:
+            hotels: list[object]
+               description: "List of available ASR_Hotel__c records with name, price, rating, and amenities information"
+               complex_data_type_name: "lightning__recordInfoType"
+         target: "flow://SearchHotels"
+
+   reasoning:
+      instructions:->
+         | Help users find the perfect hotel.
+
+           Ensure you know:
+           - desired hotel location
+           - check-in date
+           - check-out date
+
+           Once you have this information, look for available hotels using {!@actions.search_hotels}.
+
+           Show the results to the user and ask which hotel they would like to book.
+
+      actions:
+         search_hotels: @actions.search_hotels
+            with location=...
+            with check_in=...
+            with check_out=...
+
+# SUBAGENT 2: Booking subagent handles the reservation process
+subagent hotel_booking:
+   description: "Book hotel"
+
+   actions:
+      create_booking:
+         description: "Creates a hotel reservation"
+         inputs:
+            hotel_name: string
+               description: "Name of the hotel to book"
+               is_required: True
+            check_in: string
+               description: "Check-in date in ISO format (YYYY-MM-DD)"
+               is_required: True
+            check_out: string
+               description: "Check-out date in ISO format (YYYY-MM-DD)"
+               is_required: True
+         outputs:
+            booking_id: string
+               description: "Unique booking confirmation identifier"
+            success: boolean
+               description: "Indicates whether the booking was created successfully"
+         target: "flow://CreateBooking"
+
+   reasoning:
+      instructions:->
+         | First, if the hotel name, check-in date, or check-out date are not yet saved, use {!@actions.collect_booking_info} to save them from the conversation.
+
+           Then confirm the booking details with the user before creating the reservation.
+
+           Show:
+           - Hotel: {!@variables.hotel_name}
+           - Check-in: {!@variables.check_in_date}
+           - Check-out: {!@variables.check_out_date}
+
+           Ask the user to confirm these details are correct.
+           Once the user confirms, complete the booking using {!@actions.create_booking}.
+
+      actions:
+         collect_booking_info: @utils.setVariables
+            description: "Save the hotel name and travel dates from the conversation"
+            with hotel_name=...
+            with check_in_date=...
+            with check_out_date=...
+
+         create_booking: @actions.create_booking
+            with hotel_name=@variables.hotel_name
+            with check_in=@variables.check_in_date
+            with check_out=@variables.check_out_date
+            set @variables.booking_id = @outputs.booking_id
+            set @variables.booking_confirmed = @outputs.success
+            transition to @subagent.hotel_confirmation
+
+# SUBAGENT 3: Confirmation subagent shows booking details
+subagent hotel_confirmation:
+   description: "Confirm booking and provide details"
+
+   reasoning:
+      instructions:->
+         | Confirm the booking and provide its details to the user.
+
+           Confirmation details:
+           - Booking ID: {!@variables.booking_id}
+           - Hotel: {!@variables.hotel_name}
+           - Check-in: {!@variables.check_in_date}
+           - Check-out: {!@variables.check_out_date}
+
+           Ask if they need anything else.
+           If they want to make another booking, use {!@actions.start_new_booking} action.
+
+      actions:
+         start_new_booking: @utils.transition to @subagent.hotel_browse
+            description: "Start a new hotel search and booking"

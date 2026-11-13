@@ -1,0 +1,37 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "ASR_Payment_Transaction__c",
+                "referenceId": "pay_trans1"
+            },
+            "Transaction_ID__c": "TXN1001",
+            "Amount__c": 50.0,
+            "Status__c": "Pending",
+            "Payment_Method__c": "Credit Card",
+            "Loyalty_Points_Awarded__c": 10
+        },
+        {
+            "attributes": {
+                "type": "ASR_Payment_Transaction__c",
+                "referenceId": "pay_trans2"
+            },
+            "Transaction_ID__c": "TXN1002",
+            "Amount__c": 120.0,
+            "Status__c": "Completed",
+            "Payment_Method__c": "PayPal",
+            "Loyalty_Points_Awarded__c": 24
+        },
+        {
+            "attributes": {
+                "type": "ASR_Payment_Transaction__c",
+                "referenceId": "pay_trans3"
+            },
+            "Transaction_ID__c": "TXN1003",
+            "Amount__c": 2000.0,
+            "Status__c": "Failed",
+            "Payment_Method__c": "Bank Transfer",
+            "Loyalty_Points_Awarded__c": 0
+        }
+    ]
+}

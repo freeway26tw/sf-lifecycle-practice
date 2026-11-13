@@ -1,0 +1,132 @@
+# ActionDescriptionOverrides - Context-Aware Action Descriptions
+# Demonstrates how to override action descriptions based on context for better LLM action selection
+
+config:
+   developer_name: "ActionDescriptionOverrides"
+   agent_label: "Action Description Overrides"
+   agent_type: "AgentforceEmployeeAgent"
+   description: "Demonstrates overriding action descriptions based on context"
+
+variables:
+   user_mode: mutable string = "beginner"
+   search_context: mutable string = ""
+
+system:
+   messages:
+      welcome: "I demonstrate how action descriptions adapt to context!"
+      error: "I had trouble performing the action. Please try again."
+   instructions: "You adapt action descriptions based on user expertise and context. If the user's intent is unclear, start with the beginner interface."
+
+start_agent agent_router:
+   description: "Welcome users and determine their expertise level"
+   
+   reasoning:
+      instructions:|
+         Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+      actions:
+         beginner_mode: @utils.transition to @subagent.beginner_mode
+            description: "Use simplified interface for beginners. Choose this for general questions or when no specific search context (like Accounts or Cases) is mentioned."
+         
+         advanced_mode: @utils.transition to @subagent.advanced_mode
+            description: "Use full technical interface for advanced users. Choose this when the user uses technical terms, asks for specific filters, or complex operations."
+         
+         contextual_mode: @utils.transition to @subagent.contextual_search
+            description: "Use context-aware search. Choose this ONLY when the user explicitly searches for specific business objects like Accounts, Contacts, or Cases."
+
+# SUBAGENT 1: Beginner mode - simplified descriptions
+subagent beginner_mode:
+   description: "Simplified interface for beginners"
+
+   actions:
+      perform_search:
+         description: "Search the knowledge base"
+         inputs:
+            query: string
+               description: "Search query text to find relevant knowledge base articles"
+               is_required: True
+            filters: string
+               description: "Filter criteria object to refine search results (e.g., type, date range, tags)"
+               is_required: False
+         outputs:
+            results: list[string]
+               description: "List of search result objects containing matching knowledge base articles"
+               complex_data_type_name: "lightning__textType"
+         target: "flow://PerformSearch"
+
+   reasoning:
+      instructions:->
+         | Beginner Mode - Simplified Interface
+          
+           I'll help you with basic tasks using simple language.
+
+      actions:
+         simple_search: @actions.perform_search
+            with query=...
+            with filters=...
+
+         switch_to_advanced: @utils.transition to @subagent.advanced_mode
+
+# SUBAGENT 2: Advanced mode - detailed technical descriptions
+subagent advanced_mode:
+   description: "Full-featured interface for advanced users"
+
+   actions:
+      perform_search:
+         description: "Execute knowledge base query with advanced filters (supports: type, date range, tags, custom fields). Returns paginated results with relevance scoring."
+         inputs:
+            query: string
+               description: "Search query text with support for advanced syntax and operators"
+               is_required: True
+            filters: string
+               description: "Advanced filter criteria object with type, date range, tags, and custom field filters"
+               is_required: False
+         outputs:
+            results: list[string]
+               description: "Paginated list of search result objects with relevance scores"
+               complex_data_type_name: "lightning__textType"
+         target: "flow://PerformSearch"
+
+   reasoning:
+      instructions:->
+         | Advanced Mode - Full Technical Interface
+         |
+         | All features available with detailed technical descriptions.
+
+      actions:
+         advanced_search: @actions.perform_search
+            with query=...
+            with filters=...
+
+         switch_to_beginner: @utils.transition to @subagent.beginner_mode
+
+# SUBAGENT 3: Context-aware descriptions
+subagent contextual_search:
+   description: "Search with context-specific descriptions"
+
+   actions:
+      perform_search:
+         description: "Search the knowledge base"
+         inputs:
+            query: string
+               description: "Search query text adapted to the current search context"
+               is_required: True
+            filters: string
+               description: "Context-specific filter criteria object"
+               is_required: False
+         outputs:
+            results: list[string]
+               description: "List of context-relevant search result objects"
+               complex_data_type_name: "lightning__textType"
+         target: "flow://PerformSearch"
+
+   reasoning:
+      instructions:->
+         | Context-Aware Search Interface
+          
+           Search descriptions adapt based on what you're looking for.
+
+      actions:
+         # When searching for accounts
+         contextual_search: @actions.perform_search
+            with query=...
+            with filters=...
